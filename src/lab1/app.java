@@ -26,7 +26,6 @@ public class app {
 
         df.setDataFrame(list);
         System.out.println(df.get("kol1"));
-        //System.out.println(df.get((new String[]{"kol1", "kol3"}), true));
         System.out.println(df.iloc(1, 2).toString());
 
     }
