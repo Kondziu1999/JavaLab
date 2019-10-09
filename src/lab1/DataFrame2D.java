@@ -7,9 +7,9 @@ import java.util.List;
 
 public class DataFrame2D {
 
-    private List<List<String>> dataFrame;
-    private List<String> colNames;
-    private  List<String> colTypes;
+    private List<List<Object>> dataFrame;
+    private List<Object> colNames;
+    private  List<Object> colTypes;
 
     // kolejnosc nazw adekwatna do kolejnosci list w ramce
     public DataFrame2D(String[] colNames, String[]colTypes) {
@@ -22,7 +22,7 @@ public class DataFrame2D {
         this.dataFrame=new ArrayList<>(colNames.length);
     }
 
-    public List<String> get(String name){
+    public List<Object> get(String name){
         System.out.println("xdd");
         boolean contains=colNames.contains(name);
         if(contains){
@@ -45,20 +45,20 @@ public class DataFrame2D {
             if(colNames.contains(cols[i])){
                 //index typu
                 int index=colNames.indexOf(cols[i]);
-                newNames[i]=colTypes.get(index);
+                newNames[i]=colTypes.get(index).toString();
                 exising[index]=1;
             }
         }
         //tworzenie listy list z danymi;
-        List<List<String>> data=new ArrayList<>(cols.length);
+        List<List<Object>> data=new ArrayList<>(cols.length);
 
         if(copy) {
             for (int i = 0; i < exising.length; i++) {
                 if (exising[i] == 1) {
-                    List<String> temp=new ArrayList<>(cols.length);
+                    List<Object> temp=new ArrayList<>(cols.length);
                     //nowe stringi nie referencje
                     for (var x:dataFrame.get(i)){
-                        temp.add(new StringBuilder(x).toString());
+                        temp.add(new StringBuilder(x.toString()).toString());
                     }
                 }
             }
@@ -77,14 +77,14 @@ public class DataFrame2D {
     }
 
     public DataFrame2D  iloc(int index){
-        String name=colNames.get(index);
-        String type=colTypes.get(index);
+        String name=colNames.get(index).toString();
+        String type=colTypes.get(index).toString();
         DataFrame2D  newDf=new DataFrame2D (new String[]{name},new String[]{type});
 
-        List<List<String>> data=new ArrayList<>();
+        List<List<Object>> data=new ArrayList<>();
         for(var x:dataFrame) {
            //wyłuskanie wartosci z danego wiersza
-            ArrayList<String> arry=new ArrayList<>();
+            ArrayList<Object> arry=new ArrayList<>();
             arry.add(x.get(index));
 
             data.add(arry);
@@ -103,10 +103,10 @@ public class DataFrame2D {
 //            iterator++;
 //
 //        }
-        List<List<String>> data=new ArrayList<>();
+        List<List<Object>> data=new ArrayList<>();
         for(var x:dataFrame){
 
-            List<String> arry=new ArrayList<>();
+            List<Object> arry=new ArrayList<>();
             for(int i=from; i<to+1; i++){
 
                 arry.add(x.get(i));
@@ -129,7 +129,7 @@ public class DataFrame2D {
 
     @Override
     public String toString() {
-        List<String> content=new LinkedList<>();
+        List<Object> content=new LinkedList<>();
         StringBuilder sb=new StringBuilder();
         for(int i=0; i<dataFrame.size(); i++){
             for(var x:dataFrame.get(i)){
@@ -140,11 +140,11 @@ public class DataFrame2D {
         return sb.toString();
     }
 
-    public List<List<String>> getDataFrame() {
+    public List<List<Object>> getDataFrame() {
         return dataFrame;
     }
 
-    public void setDataFrame(List<List<String>> dataFrame) {
+    public void setDataFrame(List<List<Object>> dataFrame) {
         this.dataFrame = dataFrame;
     }
 }

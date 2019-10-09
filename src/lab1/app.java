@@ -10,15 +10,15 @@ public class app {
         DataFrame2D df = new DataFrame2D(new String[]{"kol1", "kol2", "kol3"},
                 new String[]{"int", "double", "MyCustomType"});
         //df.setDataFrame(Arrays.asList(new String[]{"int", "double", "MyCustomType"}));
-        List<List<String>> list = new ArrayList<>();
-        List<String> temp = new ArrayList<>();
+        List<List<Object>> list = new ArrayList<>();
+        List<Object> temp = new ArrayList<>();
         temp.add("xd");
         temp.add("xd2");
         temp.add("xd3");
         list.add(temp);
         list.add(temp);
 
-        List<String> temp2 = new ArrayList<>();
+        List<Object> temp2 = new ArrayList<>();
         temp2.add("zz");
         temp2.add("xx");
         temp2.add("vv");
