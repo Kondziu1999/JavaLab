@@ -7,9 +7,9 @@ import java.util.List;
 
 public class DataFrame2D {
 
-    private List<List<Object>> dataFrame;
-    private List<Object> colNames;
-    private  List<Object> colTypes;
+    protected List<List<Object>> dataFrame;
+    protected List<Object> colNames;
+    protected   List<Object> colTypes;
 
     // kolejnosc nazw adekwatna do kolejnosci list w ramce
     public DataFrame2D(String[] colNames, String[]colTypes) {
