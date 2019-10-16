@@ -1,5 +1,8 @@
 package lab1;
 
+import java.io.*;
+import java.nio.BufferOverflowException;
+import java.nio.file.NoSuchFileException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -20,6 +23,53 @@ public class DataFrame2D {
         this.colTypes.addAll(Arrays.asList(colTypes));
 
         this.dataFrame=new ArrayList<>(colNames.length);
+    }
+
+    public DataFrame2D(){}
+
+    public DataFrame2D(String file, String[] colTypes, String[] colNames) {
+
+        BufferedReader br;
+        String strLine;
+        try {
+            FileInputStream inputStream = new FileInputStream(file);
+            br = new BufferedReader(new InputStreamReader(inputStream));
+
+            if(colNames==null){
+                colNames= new String[colTypes.length];
+
+
+                    String str=br.readLine();
+                    String[] data=str.split(",");
+                    colNames=data;
+
+
+
+            }
+            DataFrame2D dataFrame2D=new DataFrame2D(colNames,colTypes);
+            List<List<Object>> df=new LinkedList<>();
+            while ((strLine = br.readLine()) != null)   {
+                    String[]data=strLine.split(",");
+                    int count=0;
+                    List<Object> list= new LinkedList<>();
+                    while(count<3){
+                        list.add(data[count]);
+                        count++;
+                    }
+                df.add(list);
+            }
+
+            br.close();
+            dataFrame=df;
+        } catch (FileNotFoundException e) {
+            e.getStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+//Close the input stream
+
     }
 
     public List<Object> get(String name){
@@ -134,17 +184,48 @@ public class DataFrame2D {
         for(int i=0; i<dataFrame.size(); i++){
             for(var x:dataFrame.get(i)){
                 sb.append(x);
-                sb.append(" ");
+                sb.append(" |");
             }
+            sb.append("\n");
         }
         return sb.toString();
     }
+    public void print(){
 
+        for(int i=0; i<dataFrame.size(); i++){
+            StringBuilder str= new StringBuilder();
+            for(var x:dataFrame.get(i)){
+                str.append(x);
+                str.append(" |");
+
+            }
+            System.out.println(str.toString());
+            System.out.println("\n");
+        }
+
+
+    }
     public List<List<Object>> getDataFrame() {
         return dataFrame;
     }
 
     public void setDataFrame(List<List<Object>> dataFrame) {
         this.dataFrame = dataFrame;
+    }
+
+    public List<Object> getColNames() {
+        return colNames;
+    }
+
+    public void setColNames(List<Object> colNames) {
+        this.colNames = colNames;
+    }
+
+    public List<Object> getColTypes() {
+        return colTypes;
+    }
+
+    public void setColTypes(List<Object> colTypes) {
+        this.colTypes = colTypes;
     }
 }

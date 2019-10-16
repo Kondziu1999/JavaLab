@@ -94,4 +94,9 @@ class Xd{
                 '}';
     }
 }
+class SparseTestClass{
 
+
+
+
+}
