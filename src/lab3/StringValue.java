@@ -4,19 +4,29 @@ public class StringValue extends Value{
 
     private String value;
 
+    @Override
+    public Value clone() {
+       return StringValue.create(value.toString());
+    }
+
     public String getValue() {
         return value;
     }
 
     @Override
     public String toString() {
-        return null;
+        return value;
     }
 
     @Override
     public Value add(Value value) {
-        StringBuilder builder= new StringBuilder();
-
+       if(checkTypeEq(value)) {
+           this.value = this.value + value.toString();
+           return this;
+       }
+       else {
+           throw new IllegalArgumentException("wrong type of argument");
+       }
     }
 
     @Override
@@ -65,6 +75,17 @@ public class StringValue extends Value{
             throw new IllegalArgumentException("wrong type of argument");
         }
 
+    }
+
+    public static Value create(String s) {
+        String val= String.valueOf(s);
+        Value integerValue=new StringValue(val);
+
+        return integerValue;
+    }
+
+    private StringValue(String value){
+        this.value=value;
     }
 
     @Override

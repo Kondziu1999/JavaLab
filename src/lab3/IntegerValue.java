@@ -4,6 +4,17 @@ public class IntegerValue extends Value {
 
     private Integer value;
 
+    public static Value create(String s) {
+        Integer val= Integer.valueOf(s);
+        Value integerValue=new IntegerValue(val);
+
+        return integerValue;
+    }
+
+    @Override
+    public Value clone() { return IntegerValue.create(value.toString());
+    }
+
     @Override
     public String toString() {
         return this.value.toString();
@@ -146,12 +157,7 @@ public class IntegerValue extends Value {
         return this.hashCode();
     }
 
-    public static Value create(String s) {
-        Integer val= Integer.valueOf(s);
-        Value integerValue=new IntegerValue(val);
 
-        return integerValue;
-    }
 
     private IntegerValue(Integer value){
         this.value=value;
