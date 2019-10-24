@@ -1,6 +1,6 @@
-package lab3;
+package lab4;
 
-public class StringValue extends Value{
+public class StringValue extends Value {
 
     private String value;
 

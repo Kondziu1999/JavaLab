@@ -1,8 +1,9 @@
-package lab3;
+package lab4;
 
-public abstract class Value {
+public abstract class Value implements Cloneable{
 
-    public abstract  Value clone();
+
+    public abstract Value clone();
     public abstract String toString();
     public abstract Value add(Value value);
     public abstract Value sub(Value value);
