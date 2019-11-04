@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-public class DataFrameCol {
+public class DataFrameCol{
     private List<ArrayList<Value>> mColumns;
 
     protected String[] mColumnNames;
@@ -14,8 +14,6 @@ public class DataFrameCol {
 
 
     public DataFrameCol(String[] columnNames, Value[] columnTypes) {
-
-
 
         mColumnNames = columnNames;
         mColumnTypes=columnTypes;
@@ -161,46 +159,36 @@ public class DataFrameCol {
     }
 
 
-    public List<DataFrameCol> groupBy(String colToGroup){
-        List<DataFrameCol> groups=new LinkedList<>();
-        HashMap<String, DataFrameCol> idMap = new HashMap<>();
+    public GroupbyImpl groupBy(String colToGroup){
+//        List<DataFrameCol> groups=new LinkedList<>();
+//        HashMap<String, DataFrameCol> idMap = new HashMap<>();
+//
+//        Integer groupByIndex=null;
+//        for(int i=0; i<mColumnNames.length; i++){
+//            if(mColumnNames[i].equals(colToGroup)){
+//                groupByIndex=i;
+//                break;
+//            }
+//        }
+//        if(groupByIndex==null){
+//            throw new RuntimeException("Column not found" + colToGroup);
+//        }
+//        //adding groups
+//        for(Value val:mColumns.get(groupByIndex.intValue())){
+//            //DataFrameCol tempDf=new DataFrameCol(new String[]{val.toString()},new Value[]{val});
+//            idMap.putIfAbsent(val.toString(),new DataFrameCol(new String[]{val.toString()},new Value[]{val}));
+//        }
+//
+//        for(Value val:mColumns.get(groupByIndex.intValue())){
+//
+//        }
+        //builder zwracamy tak naprawde GroupByImpl i na nim wywołujemy interesujace nas funkcje
+        return new GroupbyImpl(this,colToGroup,mColumnNames,mColumnTypes,mColumns);
 
-        Integer groupByIndex=null;
-        for(int i=0; i<mColumnNames.length; i++){
-            if(mColumnNames[i].equals(colToGroup)){
-                groupByIndex=i;
-                break;
-            }
-        }
-        if(groupByIndex==null){
-            throw new RuntimeException("Column not found" + colToGroup);
-        }
-        //adding groups
-        for(Value val:mColumns.get(groupByIndex.intValue())){
-            //DataFrameCol tempDf=new DataFrameCol(new String[]{val.toString()},new Value[]{val});
-            idMap.putIfAbsent(val.toString(),new DataFrameCol(new String[]{val.toString()},new Value[]{val}));
-        }
-
-        for(Value val:mColumns.get(groupByIndex.intValue())){
-
-
-
-        }
-
-
-
-
-
-
-
-
-
-
-
-
-
-        return null;
     }
 
+    public List<ArrayList<Value>> getmColumns() {
+        return mColumns;
+    }
 
 }

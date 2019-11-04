@@ -1,70 +1,169 @@
 package lab4;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
+import java.lang.reflect.Array;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class GroupbyImpl implements Groupby {
 
     private DataFrameCol df;
     private String colToGroup;
     private String[] mColumnNames;
-    private List<List<Value>> mColumns;
+    private List<ArrayList<Value>> mColumns;
+    private Value[] mColumnsTypes;
+    private List<DataFrameCol> groups=new LinkedList<>();
+    private int index;
 
-    public GroupbyImpl(DataFrameCol df, String colToGroup,String[] mColumnNames, List<List<Value>> mColumns){
+    //przekazuje dataFrame
+    public GroupbyImpl(DataFrameCol df, String colToGroup, String[] mColumnNames,Value[] mColumnsTypes, List<ArrayList<Value>> mColumns){
         this .df=df;
         this.colToGroup=colToGroup;
         this.mColumnNames=mColumnNames;
+        this.mColumnsTypes=mColumnsTypes;
         this.mColumns=mColumns;
+        group(colToGroup);
     }
 
+    //grupuje dataFrame
     private void group(String colToGroup){
-        List<DataFrameCol> groups=new LinkedList<>();
+        //lista mini dataFrame wynikowa
+
+
+        //hasz mapa do szukania uniklanych kluczy i wskazywania na ramke ktora je przechowuje
         HashMap<String, DataFrameCol> idMap = new HashMap<>();
 
+        //index kolumny wzgledej ktorej grupujemy
         Integer groupByIndex=null;
         for(int i=0; i<mColumnNames.length; i++){
             if(mColumnNames[i].equals(colToGroup)){
                 groupByIndex=i;
+                index=groupByIndex;
                 break;
             }
         }
         if(groupByIndex==null){
             throw new RuntimeException("Column not found" + colToGroup);
         }
-        //adding groups
+
+
+        //dodawanie grup
+        //licznik wierszy(nie chce zamieniac fora zakresowego)
+        int rowNumber=0;
         for(Value val:mColumns.get(groupByIndex.intValue())){
             //DataFrameCol tempDf=new DataFrameCol(new String[]{val.toString()},new Value[]{val});
-            idMap.putIfAbsent(val.toString(),new DataFrameCol(new String[]{val.toString()},new Value[]{val}));
+
+
+            //n
+            String [] miniDataFrameColumnsNames;
+            miniDataFrameColumnsNames=mColumnNames;
+            miniDataFrameColumnsNames[groupByIndex.intValue()]=val.toString();
+
+
+
+            //jesli element istnieje zwraca ten element(istniejacy) a jak NIE istnieje to null
+
+            //nie ma vara w jvm 8 :((((
+            Object exist=idMap.putIfAbsent(val.toString(),new DataFrameCol(mColumnNames,mColumnsTypes));
+            //istnieje
+            if(exist==null){
+                //wiersz z danymi z przetwarzanej ramki
+                DataFrameCol row=df.iloc(rowNumber);
+
+                //dodajemy wiersz z danymi
+                idMap.get(val.toString()).addRow(row);
+            }
+            //nie istnieje (NULL)
+            else{
+                //nic nie robimy DataFrame sie stworzyl juz
+            }
+            rowNumber++;
         }
-
-        for(Value val:mColumns.get(groupByIndex.intValue())){
-            var map=
-                    idMap.get(val.toString());
-
-            map.addRow();
-
-        }
-
-
+        //przerzucenie wartosci mapy do listy data framow
+        this.groups= (List<DataFrameCol>) idMap.values();
+        //TO DO posortuj kompratorem ale uwazaj bo pierwszy wiersz w kolumnie to nazwa kolumny wiec wypada go od
     }
-
-
 
     @Override
     public DataFrameCol max() {
-        return null;
+        DataFrameCol finalDf=new DataFrameCol(mColumnNames,mColumnsTypes);
+        List<ArrayList<Value>> mColumnsFinal=finalDf.getmColumns();
+        //przechodzimy po data frames
+        for(DataFrameCol df:groups){
+            int colNumber=0;
+            //przechodzimy po kolumnach
+            for(List<Value> col:df.getmColumns()){
+                //przechodzimy po wierszach
+                Value max=col.get(1);
+                for(Value val:col){
+                    if(val.gte(max)){
+                        max=val;
+                    }
+                }
+                mColumnsFinal.get(colNumber).add(max);
+                colNumber++;
+            }
+        }
+        return finalDf;
     }
 
     @Override
     public DataFrameCol min() {
-        return null;
+        DataFrameCol finalDf=new DataFrameCol(mColumnNames,mColumnsTypes);
+        List<ArrayList<Value>> mColumnsFinal=finalDf.getmColumns();
+        //przechodzimy po data frames
+        for(DataFrameCol df:groups){
+            int colNumber=0;
+            //przechodzimy po kolumnach
+            for(List<Value> col:df.getmColumns()){
+                //przechodzimy po wierszach
+                Value min=col.get(1);
+                for(Value val:col){
+                    if(val.lte(min)){
+                        min=val;
+                    }
+                }
+                mColumnsFinal.get(colNumber).add(min);
+                colNumber++;
+            }
+        }
+        return finalDf;
     }
+
 
     @Override
     public DataFrameCol mean() {
-        return null;
+        DataFrameCol finalDf=new DataFrameCol(mColumnNames,mColumnsTypes);
+        List<ArrayList<Value>> mColumnsFinal=finalDf.getmColumns();
+        //przechodzimy po data frames
+        for(DataFrameCol df:groups){
+            int colNumber=0;
+            //przechodzimy po kolumnach
+            for(List<Value> col:df.getmColumns()){
+
+                //jesli nie mamy do czynienia z Stringiem to dzialamy dalej
+                if(col.get(colNumber) instanceof StringValue ) {
+                    //przechodzimy po wierszach
+                    Integer sum = 0;
+                    for (Value val : col) {
+                        sum = sum + Integer.parseInt(val.toString());
+                    }
+
+                    Double mean = (double) (sum / col.size());
+
+                    mColumnsFinal.get(colNumber).add(DoubleValue.create(mean.toString()));
+                    colNumber++;
+
+                }
+                else {
+                    mColumnsFinal.get(colNumber).add(StringValue.create("cannot create mean from Strings"));
+                    colNumber++;
+                }
+
+            }
+        }
+        return finalDf;
     }
+
 
     @Override
     public DataFrameCol std() {
