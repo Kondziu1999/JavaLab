@@ -8,5 +8,5 @@ public interface Groupby {
     DataFrameCol std();
     DataFrameCol sum();
     DataFrameCol var();
-    DataFrameCol apply();
+    DataFrameCol apply(Applyable apply);
 }

@@ -167,21 +167,128 @@ public class GroupbyImpl implements Groupby {
 
     @Override
     public DataFrameCol std() {
-        return null;
+        DataFrameCol finalDf=new DataFrameCol(mColumnNames,mColumnsTypes);
+        List<ArrayList<Value>> mColumnsFinal=finalDf.getmColumns();
+        //przechodzimy po data frames
+        for(DataFrameCol df:groups){
+            int colNumber=0;
+            //przechodzimy po kolumnach
+            for(List<Value> col:df.getmColumns()){
+
+                //jesli nie mamy do czynienia z Stringiem to dzialamy dalej
+                if(col.get(colNumber) instanceof StringValue ) {
+                    //przechodzimy po wierszach
+                    Double sum = 0.0;
+                    for (Value val : col) {
+                        sum = sum + Double.parseDouble(val.toString());
+                    }
+
+                    Double mean = (double) (sum / col.size());
+
+                    //odchylenie standardowe
+                    Double varSum=0.0;
+                    for (Value val : col) {
+                        varSum = varSum + (Integer.parseInt(val.toString())-mean);
+                    }
+                    Double std=Math.sqrt(varSum/col.size());
+
+                    mColumnsFinal.get(colNumber).add(DoubleValue.create(std.toString()));
+                    colNumber++;
+
+                }
+                else {
+                    mColumnsFinal.get(colNumber).add(StringValue.create("cannot create std from Strings"));
+                    colNumber++;
+                }
+
+            }
+        }
+        return finalDf;
+
+
+
+
+
     }
 
     @Override
     public DataFrameCol sum() {
-        return null;
+        DataFrameCol finalDf=new DataFrameCol(mColumnNames,mColumnsTypes);
+        List<ArrayList<Value>> mColumnsFinal=finalDf.getmColumns();
+        //przechodzimy po data frames
+        for(DataFrameCol df:groups){
+            int colNumber=0;
+            //przechodzimy po kolumnach
+            for(List<Value> col:df.getmColumns()){
+
+                //jesli nie mamy do czynienia z Stringiem to dzialamy dalej
+                if(col.get(colNumber) instanceof StringValue ) {
+                    //przechodzimy po wierszach
+                    Double sum = 0.0;
+                    for (Value val : col) {
+                        sum = sum + Double.parseDouble(val.toString());
+                    }
+
+
+
+                    mColumnsFinal.get(colNumber).add(DoubleValue.create(sum.toString()));
+                    colNumber++;
+
+                }
+                else {
+                    mColumnsFinal.get(colNumber).add(StringValue.create("cannot create mean from Strings"));
+                    colNumber++;
+                }
+
+            }
+        }
+        return finalDf;
     }
 
     @Override
     public DataFrameCol var() {
-        return null;
+        DataFrameCol finalDf=new DataFrameCol(mColumnNames,mColumnsTypes);
+        List<ArrayList<Value>> mColumnsFinal=finalDf.getmColumns();
+        //przechodzimy po data frames
+        for(DataFrameCol df:groups){
+            int colNumber=0;
+            //przechodzimy po kolumnach
+            for(List<Value> col:df.getmColumns()){
+
+                //jesli nie mamy do czynienia z Stringiem to dzialamy dalej
+                if(col.get(colNumber) instanceof StringValue ) {
+                    //przechodzimy po wierszach
+                    Double sum = 0.0;
+                    for (Value val : col) {
+                        sum = sum + Double.parseDouble(val.toString());
+                    }
+
+                    Double mean = (double) (sum / col.size());
+
+                    //wariancja
+                    Double varSum=0.0;
+                    for (Value val : col) {
+                        varSum = varSum + (Integer.parseInt(val.toString())-mean);
+                    }
+                   Double variance=varSum/col.size();
+
+                    mColumnsFinal.get(colNumber).add(DoubleValue.create(variance.toString()));
+                    colNumber++;
+
+                }
+                else {
+                    mColumnsFinal.get(colNumber).add(StringValue.create("cannot create var from Strings"));
+                    colNumber++;
+                }
+
+            }
+        }
+        return finalDf;
     }
 
     @Override
-    public DataFrameCol apply() {
-        return null;
+    public DataFrameCol apply(Applyable apply) {
+        //oddelegowanie wykonania do Applyable
+        return apply.apply(df);
     }
 }
