@@ -4,9 +4,11 @@ public class StringValue extends Value {
 
     private String value;
 
+    public StringValue(){};
+
     @Override
     public Value clone() {
-       return StringValue.create(value.toString());
+       return this.create(value.toString());
     }
 
     public String getValue() {
@@ -53,12 +55,23 @@ public class StringValue extends Value {
 
     @Override
     public boolean lte(Value value) {
-        throw new IllegalArgumentException("cannot compare String");
+        int ifTrue=this.value.compareTo(((StringValue)value).getValue());
+        if(ifTrue<=0){
+         return true;
+        }
+        //throw new IllegalArgumentException("cannot compare String");
+        return false;
     }
 
     @Override
     public boolean gte(Value value) {
-        throw new IllegalArgumentException("cannot compare String");    }
+        int ifTrue=this.value.compareTo(((StringValue)value).getValue());
+        if(ifTrue>=0){
+            return true;
+        }
+        //throw new IllegalArgumentException("cannot compare String");
+        return false;
+    }
 
     @Override
     public boolean neq(Value value) {
@@ -78,8 +91,15 @@ public class StringValue extends Value {
         }
 
     }
+    @Override
+    public  Value create(String s) {
+        String val= String.valueOf(s);
+        Value integerValue=new StringValue(val);
 
-    public static Value create(String s) {
+        return integerValue;
+    }
+    //refer to particular Value
+    public static Value build(String s) {
         String val= String.valueOf(s);
         Value integerValue=new StringValue(val);
 
@@ -89,6 +109,7 @@ public class StringValue extends Value {
     private StringValue(String value){
         this.value=value;
     }
+
 
     @Override
     public int hashCode() {

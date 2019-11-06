@@ -17,7 +17,7 @@ public abstract class Value implements Cloneable{
     public abstract boolean equals(Object other);
     public abstract int hashCode();
 
-    public static Value create(String s){return null;}
+    public abstract Value create(String s);
 
 
 }

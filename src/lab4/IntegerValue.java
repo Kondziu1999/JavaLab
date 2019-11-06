@@ -3,16 +3,24 @@ package lab4;
 public class IntegerValue extends Value {
 
     private Integer value;
+    @Override
+    public  Value create(String s) {
+        Integer val= Integer.valueOf(s);
+        Value integerValue=new IntegerValue(val);
 
-    public static Value create(String s) {
+        return integerValue;
+    }
+    public static Value build(String s) {
         Integer val= Integer.valueOf(s);
         Value integerValue=new IntegerValue(val);
 
         return integerValue;
     }
 
+
+    public IntegerValue(){};
     @Override
-    public Value clone() { return IntegerValue.create(value.toString());
+    public Value clone() { return this.create(value.toString());
     }
 
     @Override
@@ -116,7 +124,7 @@ public class IntegerValue extends Value {
     public boolean lte(Value value) {
         if(checkTypeEq(value)){
 
-            return (((IntegerValue)value).getValue())<(this.getValue());
+            return (((IntegerValue)value).getValue())>(this.getValue());
         }
         else {
             throw new IllegalArgumentException("wrong type of argument");
@@ -127,7 +135,7 @@ public class IntegerValue extends Value {
     public boolean gte(Value value) {
         if(checkTypeEq(value)){
 
-            return (((IntegerValue)value).getValue())>(this.getValue());
+            return (((IntegerValue)value).getValue())<(this.getValue());
         }
         else {
             throw new IllegalArgumentException("wrong type of argument");

@@ -11,7 +11,7 @@ public class GroupbyImpl implements Groupby {
     private String[] mColumnNames;
     private List<ArrayList<Value>> mColumns;
     private Value[] mColumnsTypes;
-    private List<DataFrameCol> groups=new LinkedList<>();
+    private List<DataFrameCol> groups;
     private int index;
 
     //przekazuje dataFrame
@@ -30,7 +30,8 @@ public class GroupbyImpl implements Groupby {
 
 
         //hasz mapa do szukania uniklanych kluczy i wskazywania na ramke ktora je przechowuje
-        HashMap<String, DataFrameCol> idMap = new HashMap<>();
+        Map<String, DataFrameCol> idMap = new HashMap<>();
+        this.groups=new LinkedList<>();
 
         //index kolumny wzgledej ktorej grupujemy
         Integer groupByIndex=null;
@@ -45,7 +46,6 @@ public class GroupbyImpl implements Groupby {
             throw new RuntimeException("Column not found" + colToGroup);
         }
 
-
         //dodawanie grup
         //licznik wierszy(nie chce zamieniac fora zakresowego)
         int rowNumber=0;
@@ -56,33 +56,30 @@ public class GroupbyImpl implements Groupby {
             //n
             String [] miniDataFrameColumnsNames;
             miniDataFrameColumnsNames=mColumnNames;
-            miniDataFrameColumnsNames[groupByIndex.intValue()]=val.toString();
-
-
+            //miniDataFrameColumnsNames[groupByIndex.intValue()]=val.toString();
 
             //jesli element istnieje zwraca ten element(istniejacy) a jak NIE istnieje to null
-
+            String valString=val.toString();
             //nie ma vara w jvm 8 :((((
-            Object exist=idMap.putIfAbsent(val.toString(),new DataFrameCol(mColumnNames,mColumnsTypes));
-            //istnieje
-            if(exist==null){
+            Object exist=idMap.putIfAbsent(valString,new DataFrameCol(this.mColumnNames,this.mColumnsTypes));
+
                 //wiersz z danymi z przetwarzanej ramki
-                DataFrameCol row=df.iloc(rowNumber);
+            DataFrameCol row = df.iloc(rowNumber);
 
                 //dodajemy wiersz z danymi
-                idMap.get(val.toString()).addRow(row);
-            }
-            //nie istnieje (NULL)
-            else{
-                //nic nie robimy DataFrame sie stworzyl juz
-            }
+
+                var x = idMap.get(valString);
+                x.addRow(row);
+
             rowNumber++;
         }
         //przerzucenie wartosci mapy do listy data framow
-        this.groups= (List<DataFrameCol>) idMap.values();
+        for(var x:idMap.values()){
+            this.groups.add(x);
+        }
+        //this.groups= (List<DataFrameCol>) idMap.values();
         //TO DO posortuj kompratorem ale uwazaj bo pierwszy wiersz w kolumnie to nazwa kolumny wiec wypada go od
     }
-
     @Override
     public DataFrameCol max() {
         DataFrameCol finalDf=new DataFrameCol(mColumnNames,mColumnsTypes);
@@ -105,31 +102,38 @@ public class GroupbyImpl implements Groupby {
         }
         return finalDf;
     }
-
     @Override
     public DataFrameCol min() {
         DataFrameCol finalDf=new DataFrameCol(mColumnNames,mColumnsTypes);
         List<ArrayList<Value>> mColumnsFinal=finalDf.getmColumns();
         //przechodzimy po data frames
-        for(DataFrameCol df:groups){
-            int colNumber=0;
+        for(DataFrameCol df:groups) {
+            int colNumber = 0;
             //przechodzimy po kolumnach
-            for(List<Value> col:df.getmColumns()){
+            for (List<Value> col : df.getmColumns()) {
                 //przechodzimy po wierszach
-                Value min=col.get(1);
-                for(Value val:col){
-                    if(val.lte(min)){
-                        min=val;
+                try {
+                    if(col.size()==1){
+                        throw new RuntimeException("Byku po tym nie grupuj");
                     }
+                    Value min = col.get(1);
+
+
+                    for (Value val : col) {
+                        if (val.lte(min)) {
+                            min = val;
+                        }
+                    }
+                    mColumnsFinal.get(colNumber).add(min);
+                    colNumber++;
+
+                } catch (RuntimeException e) {
+                    System.out.println(e.getMessage());
                 }
-                mColumnsFinal.get(colNumber).add(min);
-                colNumber++;
             }
         }
         return finalDf;
     }
-
-
     @Override
     public DataFrameCol mean() {
         DataFrameCol finalDf=new DataFrameCol(mColumnNames,mColumnsTypes);
@@ -141,30 +145,28 @@ public class GroupbyImpl implements Groupby {
             for(List<Value> col:df.getmColumns()){
 
                 //jesli nie mamy do czynienia z Stringiem to dzialamy dalej
-                if(col.get(colNumber) instanceof StringValue ) {
+                if(col.get(0) instanceof StringValue){
+                    mColumnsFinal.get(colNumber).add(StringValue.build("cannot create mean from Strings"));
+
+
+                }
+                else {
                     //przechodzimy po wierszach
-                    Integer sum = 0;
+                    Double sum = 0.0;
                     for (Value val : col) {
-                        sum = sum + Integer.parseInt(val.toString());
+                        sum = sum + Double.parseDouble(val.toString());
                     }
 
                     Double mean = (double) (sum / col.size());
 
-                    mColumnsFinal.get(colNumber).add(DoubleValue.create(mean.toString()));
-                    colNumber++;
+                    mColumnsFinal.get(colNumber).add(DoubleValue.build(mean.toString()));
 
                 }
-                else {
-                    mColumnsFinal.get(colNumber).add(StringValue.create("cannot create mean from Strings"));
-                    colNumber++;
-                }
-
+                colNumber++;
             }
         }
         return finalDf;
     }
-
-
     @Override
     public DataFrameCol std() {
         DataFrameCol finalDf=new DataFrameCol(mColumnNames,mColumnsTypes);
@@ -176,7 +178,12 @@ public class GroupbyImpl implements Groupby {
             for(List<Value> col:df.getmColumns()){
 
                 //jesli nie mamy do czynienia z Stringiem to dzialamy dalej
-                if(col.get(colNumber) instanceof StringValue ) {
+                if(col.get(0) instanceof StringValue ) {
+                    mColumnsFinal.get(colNumber).add(StringValue.build("cannot create std from Strings"));
+                    colNumber++;
+
+                }
+                else {
                     //przechodzimy po wierszach
                     Double sum = 0.0;
                     for (Value val : col) {
@@ -188,26 +195,17 @@ public class GroupbyImpl implements Groupby {
                     //odchylenie standardowe
                     Double varSum=0.0;
                     for (Value val : col) {
-                        varSum = varSum + (Integer.parseInt(val.toString())-mean);
+                        varSum = varSum + Math.pow((Double.parseDouble(val.toString())-mean),2);
                     }
                     Double std=Math.sqrt(varSum/col.size());
 
-                    mColumnsFinal.get(colNumber).add(DoubleValue.create(std.toString()));
-                    colNumber++;
-
-                }
-                else {
-                    mColumnsFinal.get(colNumber).add(StringValue.create("cannot create std from Strings"));
+                    mColumnsFinal.get(colNumber).add(DoubleValue.build(std.toString()));
                     colNumber++;
                 }
 
             }
         }
         return finalDf;
-
-
-
-
 
     }
 
@@ -222,7 +220,12 @@ public class GroupbyImpl implements Groupby {
             for(List<Value> col:df.getmColumns()){
 
                 //jesli nie mamy do czynienia z Stringiem to dzialamy dalej
-                if(col.get(colNumber) instanceof StringValue ) {
+                if(col.get(0) instanceof StringValue ) {
+                    mColumnsFinal.get(colNumber).add(StringValue.build("cannot create mean from Strings"));
+                    colNumber++;
+
+                }
+                else {
                     //przechodzimy po wierszach
                     Double sum = 0.0;
                     for (Value val : col) {
@@ -231,13 +234,9 @@ public class GroupbyImpl implements Groupby {
 
 
 
-                    mColumnsFinal.get(colNumber).add(DoubleValue.create(sum.toString()));
+                    mColumnsFinal.get(colNumber).add(DoubleValue.build(sum.toString()));
                     colNumber++;
 
-                }
-                else {
-                    mColumnsFinal.get(colNumber).add(StringValue.create("cannot create mean from Strings"));
-                    colNumber++;
                 }
 
             }
@@ -256,7 +255,11 @@ public class GroupbyImpl implements Groupby {
             for(List<Value> col:df.getmColumns()){
 
                 //jesli nie mamy do czynienia z Stringiem to dzialamy dalej
-                if(col.get(colNumber) instanceof StringValue ) {
+                if(col.get(0) instanceof StringValue ) {
+                    mColumnsFinal.get(colNumber).add(StringValue.build("cannot create var from Strings"));
+                    colNumber++;
+                }
+                else {
                     //przechodzimy po wierszach
                     Double sum = 0.0;
                     for (Value val : col) {
@@ -268,17 +271,13 @@ public class GroupbyImpl implements Groupby {
                     //wariancja
                     Double varSum=0.0;
                     for (Value val : col) {
-                        varSum = varSum + (Integer.parseInt(val.toString())-mean);
+                        varSum = varSum + Math.pow((Double.parseDouble(val.toString())-mean),2);
                     }
-                   Double variance=varSum/col.size();
+                    Double variance=varSum/col.size();
 
-                    mColumnsFinal.get(colNumber).add(DoubleValue.create(variance.toString()));
+                    mColumnsFinal.get(colNumber).add(DoubleValue.build(variance.toString()));
                     colNumber++;
 
-                }
-                else {
-                    mColumnsFinal.get(colNumber).add(StringValue.create("cannot create var from Strings"));
-                    colNumber++;
                 }
 
             }

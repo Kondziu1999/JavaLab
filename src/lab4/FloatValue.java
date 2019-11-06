@@ -3,9 +3,10 @@ package lab4;
 public class FloatValue extends Value {
     private Float value;
 
+    public FloatValue(){};
     @Override
     public Value clone() {
-        return FloatValue.create(value.toString());
+        return this.create(value.toString());
     }
 
     @Override
@@ -112,7 +113,7 @@ public class FloatValue extends Value {
     public boolean lte(Value value) {
         if(checkTypeEq(value)){
 
-            return (((FloatValue)value).getValue())<(this.getValue());
+            return (((FloatValue)value).getValue())>(this.getValue());
         }
         else {
             throw new IllegalArgumentException("wrong type of argument");
@@ -123,7 +124,7 @@ public class FloatValue extends Value {
     public boolean gte(Value value) {
         if(checkTypeEq(value)){
 
-            return (((FloatValue)value).getValue())>(this.getValue());
+            return (((FloatValue)value).getValue())<(this.getValue());
         }
         else {
             throw new IllegalArgumentException("wrong type of argument");
@@ -153,7 +154,15 @@ public class FloatValue extends Value {
         return this.hashCode();
     }
 
-    public static Value create(String s) {
+    @Override
+    public  Value create(String s) {
+        Float val= Float.valueOf(s);
+        Value floatValue=new FloatValue(val);
+
+        return floatValue;
+    }
+
+    public static Value build(String s) {
         Float val= Float.valueOf(s);
         Value floatValue=new FloatValue(val);
 

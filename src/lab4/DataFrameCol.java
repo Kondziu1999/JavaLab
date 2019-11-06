@@ -1,8 +1,8 @@
 package lab4;
 
 
+import java.io.*;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -12,13 +12,66 @@ public class DataFrameCol{
     protected String[] mColumnNames;
     protected Value[] mColumnTypes;
 
-
     public DataFrameCol(String[] columnNames, Value[] columnTypes) {
-
+        mColumns=new ArrayList<>();
         mColumnNames = columnNames;
         mColumnTypes=columnTypes;
+        for(int i=0; i<columnNames.length;i++){
+            mColumns.add(new ArrayList<>());
+        }
     }
 
+    public DataFrameCol(String file, Value[] colTypes, String[] ColumnNames) {
+
+        BufferedReader br;
+        String strLine;
+        try {
+            FileInputStream inputStream = new FileInputStream(file);
+            br = new BufferedReader(new InputStreamReader(inputStream));
+
+            //przypisanie nazw do kolumn
+            if(ColumnNames==null){
+                mColumnNames= new String[colTypes.length];
+
+                String str=br.readLine();
+                String[] data=str.split(",");
+                mColumnNames=data;
+
+            }
+
+            List<ArrayList<Value>> df=new ArrayList<>();
+
+            //stworzenie kolumn(nazwa i typ jest w osobnych tablicach)
+            for(int i=0; i<mColumnNames.length; i++){
+               ArrayList<Value> temp=new ArrayList<>();
+                df.add(temp);
+            }
+
+
+            while ((strLine = br.readLine()) != null)   {
+                String[]data=strLine.split(",");
+
+                for(int i=0; i<df.size(); i++){
+                    var col=df.get(i);
+                    //wyluskac kolumne sprawdzic jaka Value odpowiada i stworzyc obiekt z stringa
+                    String str=data[i];
+                    Value newValue=colTypes[i].create(str);
+                    col.add(newValue);
+                }
+
+            }
+            //przypisanie referencji do ramki danych klasy
+            mColumns=df;
+
+            br.close();
+
+        } catch (FileNotFoundException e) {
+            e.getStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
 
     /*
     – zwracającą ilość wierszy w całej DF (uwaga – DF nie może mieć jednej z kolumn dłuższej niż pozostałe
@@ -42,7 +95,7 @@ public class DataFrameCol{
         int columnIndex = -1;
 
         for (int i = 0; i < mColumnNames.length; i++) {
-            if (mColumnNames[i].equals(StringValue.create(columnName))) {
+            if (mColumnNames[i].equals(columnName)) {
                 columnIndex = i;
                 break;
             }
@@ -153,35 +206,17 @@ public class DataFrameCol{
     }
     public void addRow(DataFrameCol dfRow){
 
-        for(int i=0; i<mColumns.size(); i++){
-            mColumns.get(i).add(dfRow.get(mColumnNames[i]).get(0));
+        for(int i=0; i<mColumnNames.length; i++){
+            var a=dfRow.get(mColumnNames[i]);
+            Value x=a.get(0);
+            var col=mColumns.get(i);
+            col.add(x);
         }
     }
 
 
     public GroupbyImpl groupBy(String colToGroup){
-//        List<DataFrameCol> groups=new LinkedList<>();
-//        HashMap<String, DataFrameCol> idMap = new HashMap<>();
-//
-//        Integer groupByIndex=null;
-//        for(int i=0; i<mColumnNames.length; i++){
-//            if(mColumnNames[i].equals(colToGroup)){
-//                groupByIndex=i;
-//                break;
-//            }
-//        }
-//        if(groupByIndex==null){
-//            throw new RuntimeException("Column not found" + colToGroup);
-//        }
-//        //adding groups
-//        for(Value val:mColumns.get(groupByIndex.intValue())){
-//            //DataFrameCol tempDf=new DataFrameCol(new String[]{val.toString()},new Value[]{val});
-//            idMap.putIfAbsent(val.toString(),new DataFrameCol(new String[]{val.toString()},new Value[]{val}));
-//        }
-//
-//        for(Value val:mColumns.get(groupByIndex.intValue())){
-//
-//        }
+
         //builder zwracamy tak naprawde GroupByImpl i na nim wywołujemy interesujace nas funkcje
         return new GroupbyImpl(this,colToGroup,mColumnNames,mColumnTypes,mColumns);
 
@@ -191,4 +226,29 @@ public class DataFrameCol{
         return mColumns;
     }
 
+
+
+    public String print(){
+        StringBuilder builder= new StringBuilder();
+        for(String name:mColumnNames){
+            builder.append(name);
+            builder.append("                     |");
+        }
+        System.out.println(builder.toString());
+        System.out.println("\n");
+
+        for(int row=0; row<mColumns.get(0).size(); row++){
+
+            builder.setLength(0);
+
+            for(List<Value> col:mColumns){
+                builder.append(col.get(row).toString());
+                builder.append("                     |");
+            }
+            System.out.println(builder.toString());
+            System.out.println("\n");
+        }
+
+    return "xd";
+    }
 }

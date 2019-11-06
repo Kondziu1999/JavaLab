@@ -4,10 +4,10 @@ package lab4;
 public class DoubleValue extends Value {
     private Double value;
 
-
+    public DoubleValue(){};
     @Override
     public Value clone() {
-        return DoubleValue.create(value.toString());
+        return this.create(value.toString());
     }
 
     @Override
@@ -111,7 +111,7 @@ public class DoubleValue extends Value {
     public boolean lte(Value value) {
         if(checkTypeEq(value)){
 
-            return (((DoubleValue)value).getValue())<(this.getValue());
+            return (((DoubleValue)value).getValue())>(this.getValue());
         }
         else {
             throw new IllegalArgumentException("wrong type of argument");
@@ -122,7 +122,7 @@ public class DoubleValue extends Value {
     public boolean gte(Value value) {
         if(checkTypeEq(value)){
 
-            return (((DoubleValue)value).getValue())>(this.getValue());
+            return (((DoubleValue)value).getValue())<(this.getValue());
         }
         else {
             throw new IllegalArgumentException("wrong type of argument");
@@ -151,7 +151,15 @@ public class DoubleValue extends Value {
         return this.hashCode();
     }
 
-    public static Value create(String s) {
+    @Override
+    public Value create(String s) {
+        Double val= Double.valueOf(s);
+        Value doubleValue=new DoubleValue(val);
+
+        return doubleValue;
+    }
+    ///to refer to particular Value
+    public static Value build(String s){
         Double val= Double.valueOf(s);
         Value doubleValue=new DoubleValue(val);
 
