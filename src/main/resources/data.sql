@@ -1,0 +1,11 @@
+DROP TABLE IF EXISTS data_frame;
+
+CREATE TABLE data_frame (
+  id INT AUTO_INCREMENT  PRIMARY KEY,
+  id2 VARCHAR (10) NOT NULL ,
+  date DATE NOT NULL,
+  total DOUBLE NOT NULL,
+  val DOUBLE NOT NULL
+);
+
+INSERT INTO data_frame values (1,'a','1999-10-09',1.54345345,2.343434642);
